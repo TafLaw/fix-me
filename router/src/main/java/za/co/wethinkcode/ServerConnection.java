@@ -35,21 +35,10 @@ public class ServerConnection extends  Thread {
 
     public void sendStringToAllClients(String text){
         ServerConnection serverConnection;
-        String clientType;
+
         for (int i = 0; i < router.connections.size(); i ++){
             serverConnection = router.connections.get(i);
-            clientType = serverConnection.client;
-            System.out.println("______"+clientType+"______");
-
-            if (!clientType.equalsIgnoreCase(marketConnection.getName())) {
-                serverConnection.sendStringToClient(text);
-                break;
-            }
-            else if (!clientType.equalsIgnoreCase(brokerConnection.getName())) {
-                System.out.println("Else");
-                serverConnection.sendStringToClient(text);
-                break;
-            }
+            serverConnection.sendStringToClient(text);
         }
     }
 

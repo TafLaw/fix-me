@@ -13,8 +13,6 @@ public class Router {
     ArrayList<ServerConnection> connections = new ArrayList<ServerConnection>();
     boolean shouldRun = true;
 
-    protected static ArrayList<ClientThread> clients;
-
     public static void main(String[] args) throws Exception{
         new Router();
     }
@@ -45,55 +43,7 @@ public class Router {
         }
     }
 
-//    public void listenForData() {
-//        while (true){
-//            try {
-//                while (dataInputStream.available() == 0){
-//                    try {
-//                        Thread.sleep(1);
-//
-//                    } catch (InterruptedException e) {
-//                        e.printStackTrace();
-//                    }
-//                }
-//
-//                String dataIn = dataInputStream.readUTF();
-//                dataOutputStream.writeUTF(dataIn);
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//                break;
-//            }
-//        }
-//
-//        try {
-//            dataInputStream.close();
-//            dataOutputStream.close();
-//            socket.close();
-//            serverSocket.close();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
-
-
     //136921996123-me1hmshorbvj8dhcmrqffom3kcs79nts.apps.googleusercontent.com
 //    q1qOup57TPLolhozawbci5pC
-    private static void acceptClients(ServerSocket serverSocket) {
-        /*
-        * Available clients are the market and the broker
-        * */
-        clients = new ArrayList<ClientThread>();
-        while (true){
-            System.out.println("accept");
-            try {
-                Socket socket = serverSocket.accept();
-                ClientThread clientThread = new ClientThread(socket);
-                Thread thread = new Thread(clientThread);
-                thread.start();
-                clients.add(clientThread);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
+
 }

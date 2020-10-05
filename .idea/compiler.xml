@@ -6,9 +6,9 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="broker" />
-        <module name="router" />
         <module name="market" />
+        <module name="router" />
+        <module name="broker" />
       </profile>
     </annotationProcessing>
   </component>

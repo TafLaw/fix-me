@@ -1,25 +1,22 @@
 package za.co.wethinkcode;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.Scanner;
 
-public class Broker {
-
-    BrokerConnection brokerConnection;
+public class Market {
+    MarketConnection marketConnection;
 
     public static void main(String[] args) {
-        new Broker();
+        new Market();
     }
 
-    public Broker(){
-        int brokerPort = 5000;
+    public Market(){
+        int marketPort = 5001;
         try {
-            Socket socket = new Socket("localhost", brokerPort);
-            brokerConnection = new BrokerConnection(socket, this);
-            brokerConnection.start();
+            Socket socket = new Socket("localhost", marketPort);
+            marketConnection = new MarketConnection(socket, this);
+            marketConnection.start();
             listenForInput();
 //            Thread server = new Thread(new RouterThread(socket));
 //            server.start();
@@ -45,9 +42,9 @@ public class Broker {
 
             if (input.equalsIgnoreCase("exit"))
                 break;
-            brokerConnection.sendStringToServer(input);
+            marketConnection.sendStringToServer(input);
         }
-        brokerConnection.close();
+        marketConnection.close();
     }
 
 }

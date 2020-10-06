@@ -63,7 +63,7 @@ class ReadWriteHandler implements CompletionHandler<Integer, Message> {
                     Integer id = Integer.parseInt(messageID);
                     attach.ID = id;
                 } else {
-                    String[] messageData = message.split("\\|");
+                    String[] messageData = message.split("\\-");
                     if(messageData[2].equals("Executed") || messageData[2].equals("Rejected")) {
                         System.out.format("Market responded with: " + messageData[2] + "\n");
                         System.out.println();
@@ -113,7 +113,7 @@ class ReadWriteHandler implements CompletionHandler<Integer, Message> {
                 if(marketID < 543210 || marketID == id) {
                     System.out.println("Invalid input");
                 } else {
-                    message += Integer.toString(marketID) + "|" + id + "|";
+                    message += Integer.toString(marketID) + "-" + id + "-";
                     validInput = true;
                 }
             } catch (InputMismatchException e) {

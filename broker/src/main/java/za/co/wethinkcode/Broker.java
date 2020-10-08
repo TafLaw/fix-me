@@ -1,21 +1,23 @@
 package za.co.wethinkcode;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.net.Socket;
+
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.io.ByteBuffer;
-import java.io.channels.AsynchronousSocketChannel;
-import java.io.channels.CompletionHandler;
-import java.io.charset.Charset;
+import java.nio.ByteBuffer;
+import java.nio.channels.AsynchronousSocketChannel;
+import java.nio.channels.CompletionHandler;
+import java.nio.charset.Charset;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.util.concurrent.Future;
+import java.nio.channels.*;
+import java.nio.*;
 
 
 public class Broker {
+    public Broker(int parseInt, int parseInt1) {
+    }
+
     public static void main(String[] args) throws Exception {
         System.out.println("Starting the broker");
 
@@ -34,14 +36,19 @@ public class Broker {
         channel.read(attach.buffer, attach, FileHandler);
         attach.mainThread.join();
     }
+
+    public void contact() {
+    }
 }
 
-class Message {
-    AsynchronousSocketChannel   channel;
-    Integer                     ID;
-    ByteBuffer                  buffer;
-    Thread                      mainThread;
-    boolean                     isRead;
+class Message
+{
+    public AsynchronousSocketChannel client;
+    public int clientId;
+    public ByteBuffer buffer;
+    public Thread mainThread;
+    public boolean isRead;
+    public AsynchronousSocketChannel channel;
 }
 
 class ReadWriteHandler implements CompletionHandler<Integer, Message> {
@@ -63,7 +70,7 @@ class ReadWriteHandler implements CompletionHandler<Integer, Message> {
                     Integer id = Integer.parseInt(messageID);
                     attach.ID = id;
                 } else {
-                    String[] messageData = message.split("\\-");
+                    String[] messageData = message.split("\\|");
                     if(messageData[2].equals("Executed") || messageData[2].equals("Rejected")) {
                         System.out.format("Market responded with: " + messageData[2] + "\n");
                         System.out.println();
@@ -113,7 +120,7 @@ class ReadWriteHandler implements CompletionHandler<Integer, Message> {
                 if(marketID < 543210 || marketID == id) {
                     System.out.println("Invalid input");
                 } else {
-                    message += Integer.toString(marketID) + "-" + id + "-";
+                    message += Integer.toString(marketID) + "|" + id + "|";
                     validInput = true;
                 }
             } catch (InputMismatchException e) {
@@ -149,7 +156,7 @@ class ReadWriteHandler implements CompletionHandler<Integer, Message> {
         try {
             Scanner     scanner = new Scanner(System.in);
 
-            message += scanner.nextLine().trim() + "-";
+            message += scanner.nextLine().trim() + "|";
         } catch (InputMismatchException e) {
             System.out.println("You have not entered a valid instrument");
         }
@@ -165,7 +172,7 @@ class ReadWriteHandler implements CompletionHandler<Integer, Message> {
                 if(price < 1) {
                     System.out.println("Invalid input");
                 } else {
-                    message += Integer.toString(price) + "-";
+                    message += Integer.toString(price) + "|";
                     validInput = true;
                 }
             } catch (InputMismatchException e) {
@@ -185,7 +192,7 @@ class ReadWriteHandler implements CompletionHandler<Integer, Message> {
                 if(quantity < 1) {
                     System.out.println("Invalid input");
                 } else {
-                    message += Integer.toString(quantity) + "-";
+                    message += Integer.toString(quantity) + "|";
                     validInput = true;
                 }
             } catch (InputMismatchException e) {

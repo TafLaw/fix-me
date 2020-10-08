@@ -1,12 +1,12 @@
 package za.co.wethinkcode;
 
-import java.io.charset.*;
-import java.io.channels.*;
+import java.nio.charset.*;
+import java.nio.channels.*;
 
 public class FileHandler implements CompletionHandler<Integer, Message> {
     @Override
 
-    //Overide the message fuction found in the broker , it s reused.
+    //Override the message function found in the broker , it s reused.
     public void completed(Integer result, Message attach) {
       if (result == -1)
         {
@@ -28,7 +28,7 @@ public class FileHandler implements CompletionHandler<Integer, Message> {
           System.out.println("Server responded with Id: " + attach.clientId);
         }
         else
-          System.out.println("Server Responded: "+ msg.replace((char)1, '-'));
+          System.out.println("Server Responded: "+ msg.replace((char)1, '|'));
         try {
           boolean status = Broker.proccessReply(msg);
           if (status == true && Broker.bs == 1)
@@ -45,7 +45,7 @@ public class FileHandler implements CompletionHandler<Integer, Message> {
           return;
         }
         i++;
-        System.out.println("\nBroker response:" + msg.replace((char)1, '-'));
+        System.out.println("\nBroker response:" + msg.replace((char)1, '|'));
         byte[] data = msg.getBytes(cs);
         attach.buffer.put(data);
         attach.buffer.flip();

@@ -1,3 +1,5 @@
-za\co\wethinkcode\ClientThread.class
+za\co\wethinkcode\MessageHandler.class
+za\co\wethinkcode\Router$ClientData.class
+za\co\wethinkcode\Router$1.class
+za\co\wethinkcode\EClient.class
 za\co\wethinkcode\Router.class
-za\co\wethinkcode\ServerConnection.class

@@ -70,7 +70,6 @@ public class Router {
                                         try {
                                             transportMessage(this.readBroker(key, connectedClients.get("Broker")));
                                         } catch (Exception e) {
-                                            System.out.println(RED+"Broker disconnected");
                                             continue;
                                         }
                                         break;
@@ -81,11 +80,19 @@ public class Router {
                                 ClientData clientData = null;
 
                                 if (senderChannel.toString().split(" ")[1].split(":")[1].equalsIgnoreCase("5000")) {
-                                    clientData = connectedClients.get("Market");
-                                    this.writeMarket(clientData.key, clientData);
+                                    try{
+                                        clientData = connectedClients.get("Market");
+                                        this.writeMarket(clientData.key, clientData);
+                                    } catch (Exception e) {
+                                        continue;
+                                    }
                                 } else if (senderChannel.toString().split(" ")[1].split(":")[1].equalsIgnoreCase("5001")) {
-                                    clientData = connectedClients.get("Broker");
-                                    this.writeBroker(clientData.key, clientData);
+                                    try{
+                                        clientData = connectedClients.get("Broker");
+                                        this.writeBroker(clientData.key, clientData);
+                                    } catch (Exception e) {
+                                        continue;
+                                    }
                                 }
                             }
                         }
@@ -171,7 +178,8 @@ public class Router {
 
             brokerData.readBuffer.clear();
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println(RED+"Broker disconnected");
+            connectedClients.remove("Broker");
         }
         return message;
     }

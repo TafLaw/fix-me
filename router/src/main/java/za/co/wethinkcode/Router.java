@@ -161,6 +161,8 @@ public class Router {
 
     private String readBroker(SelectionKey key, ClientData brokerData) {
         String message = "";
+        String tempMessage = "";
+
         SocketChannel socketChannel = (SocketChannel) key.channel();
         senderChannel = key.channel();
         try {
@@ -173,8 +175,18 @@ public class Router {
             }
             brokerData.readBuffer.flip();
 
-            message = new String(brokerData.readBuffer.array());
+            tempMessage = new String(brokerData.readBuffer.array());
+            message = tempMessage;
             System.out.println(YELLOW+message);
+
+            tempMessage = tempMessage.replace("|", "\u0001");
+            String pipe = "" + (char)1;
+            String [] arrayMessage = tempMessage.split(pipe);
+            int length = arrayMessage.length;
+            System.out.println(arrayMessage[length-2]);
+
+            String checksum = arrayMessage[length - 2].replace("=", "\u0001");
+            messageHandler.validate_checksum(message, Integer.parseInt(checksum.split(pipe)[1]));
 
             brokerData.readBuffer.clear();
         } catch (IOException e) {
@@ -200,7 +212,9 @@ public class Router {
 
             message = new String(marketData.readBuffer.array());
             System.out.println(YELLOW+message);
-
+            String [] arrayMessage = message.split("|");
+            int length = arrayMessage.length;
+            messageHandler.validate_checksum(message, Integer.parseInt(arrayMessage[length - 1].split("=")[1]));
             marketData.readBuffer.clear();
         } catch (IOException e) {
             e.printStackTrace();

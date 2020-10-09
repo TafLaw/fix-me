@@ -11,6 +11,7 @@ public class MarketConnection extends Thread {
     private DataInputStream dataInputStream;
     private DataOutputStream dataOutputStream;
     private Market market;
+    private String reply;
 
     public MarketConnection(Socket socket, Market market) {
         super("MarketConnection");
@@ -47,9 +48,10 @@ public class MarketConnection extends Thread {
                         }
                     }
 
+                    System.out.println("All Message in and out of the market!!!");
                     String reply = dataInputStream.readUTF();
                     System.out.println(reply);
-
+                    this.reply = reply;
                 } catch (IOException e) {
                     e.printStackTrace();
                     close();
@@ -72,4 +74,7 @@ public class MarketConnection extends Thread {
         }
     }
 
+    public String getReply() {
+        return reply;
+    }
 }

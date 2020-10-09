@@ -17,6 +17,7 @@ public class Market {
             Socket socket = new Socket("localhost", marketPort);
             marketConnection = new MarketConnection(socket, this);
             marketConnection.start();
+            startMarket(marketConnection.getReply());
             listenForInput();
 //            Thread server = new Thread(new RouterThread(socket));
 //            server.start();
@@ -47,4 +48,10 @@ public class Market {
         marketConnection.close();
     }
 
+    private void startMarket(String reply){
+        MarketBrokerMessage marketBrokerMessage = new MarketBrokerMessage(reply);
+        marketBrokerMessage.purifyMessage();
+        MarketSimulation marketSimulation = new MarketSimulation(marketBrokerMessage.getSanitizedMessage());
+        marketSimulation.startSimulation();
+    }
 }

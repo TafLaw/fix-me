@@ -199,6 +199,7 @@ public class Router {
     private String readMarket(SelectionKey key, ClientData marketData) {
         SocketChannel socketChannel = (SocketChannel) key.channel();
         String message = "";
+        String tempMessage = "";
         senderChannel = key.channel();
         try {
             socketChannel.configureBlocking(false);
@@ -210,11 +211,18 @@ public class Router {
             }
             marketData.readBuffer.flip();
 
-            message = new String(marketData.readBuffer.array());
+            tempMessage = new String(marketData.readBuffer.array());
+            message = tempMessage;
             System.out.println(YELLOW+message);
-            String [] arrayMessage = message.split("|");
+
+            tempMessage = tempMessage.replace("|", "\u0001");
+            String pipe = "" + (char)1;
+            String [] arrayMessage = tempMessage.split(pipe);
             int length = arrayMessage.length;
-            messageHandler.validate_checksum(message, Integer.parseInt(arrayMessage[length - 1].split("=")[1]));
+            System.out.println(arrayMessage[length-2]);
+
+            String checksum = arrayMessage[length - 2].replace("=", "\u0001");
+            messageHandler.validate_checksum(message, Integer.parseInt(checksum.split(pipe)[1]));
             marketData.readBuffer.clear();
         } catch (IOException e) {
             e.printStackTrace();

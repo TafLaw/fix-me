@@ -28,7 +28,8 @@ public class Broker {
             // Read the message
             this.read(socketChannel);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Server not running");
+            System.exit(0);
         }
     }
 

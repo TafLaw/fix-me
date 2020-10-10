@@ -36,7 +36,8 @@ public class Market implements Executor {
         try {
             sc.write(writeBuffer);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Server not running");
+            System.exit(0);
         }
     }
 
@@ -69,7 +70,8 @@ public class Market implements Executor {
                         String brokerMessage = new String(readBuffer.array());
                         startMarket(brokerMessage);
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        System.out.println("Server not running");
+                        System.exit(0);
                     }
                 }
             }

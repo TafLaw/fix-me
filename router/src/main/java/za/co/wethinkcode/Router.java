@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.*;
-import java.time.Year;
 import java.util.*;
 
 public class Router {
@@ -12,6 +11,7 @@ public class Router {
     public static final String GREEN = "\u001B[32m";
     public static final String YELLOW = "\u001B[33m";
 
+    private String marketId;
     private Selector selector;
     private SelectableChannel senderChannel = null;
     private HashMap<String, ClientData> connectedClients = new HashMap<String, ClientData>();
@@ -19,7 +19,6 @@ public class Router {
 
     public static void main(String[] args) {
         Router router = new Router();
-        //new Thread(router.msgSender).start();
         router.start();
 
     }
@@ -50,7 +49,6 @@ public class Router {
                 int selections = this.selector.select();
                 if (selections > 0) {
 
-//                        System.out.println(this.selector.selectedKeys().toArray()[0].toString().split(", ")[0]);
                     Iterator<SelectionKey> iterator = this.selector.selectedKeys().iterator();
 
                     while (iterator.hasNext()) {
@@ -63,8 +61,11 @@ public class Router {
                             if (key.isReadable()) {
                                 switch (whichClient(key)) {
                                     case 0:
-
-                                        transportMessage(this.readMarket(key, connectedClients.get("Market")));
+                                        try {
+                                            transportMessage(this.readMarket(key, connectedClients.get("Market")));
+                                        } catch (Exception e) {
+                                            continue;
+                                        }
                                         break;
                                     case 1:
                                         try {
@@ -76,20 +77,19 @@ public class Router {
                                 }
                             }
                             if (key.isWritable() && messageHandler.getFlag()) {
-                                SocketChannel checkKey = (SocketChannel) key.channel();
                                 ClientData clientData = null;
 
                                 if (senderChannel.toString().split(" ")[1].split(":")[1].equalsIgnoreCase("5000")) {
                                     try{
                                         clientData = connectedClients.get("Market");
-                                        this.writeMarket(clientData.key, clientData);
+                                        this.writeMarket(clientData.socketchannel, clientData);
                                     } catch (Exception e) {
                                         continue;
                                     }
                                 } else if (senderChannel.toString().split(" ")[1].split(":")[1].equalsIgnoreCase("5001")) {
                                     try{
                                         clientData = connectedClients.get("Broker");
-                                        this.writeBroker(clientData.key, clientData);
+                                        this.writeBroker(clientData.socketchannel, clientData);
                                     } catch (Exception e) {
                                         continue;
                                     }
@@ -114,7 +114,8 @@ public class Router {
         public String type;
         public ByteBuffer readBuffer;
         public ByteBuffer writeBuffer;
-        SocketChannel key;
+        public SelectionKey selectionKey;
+        SocketChannel socketchannel;
     }
 
     private void writeBroker(SocketChannel socketChannel, ClientData brokerData) {
@@ -125,7 +126,6 @@ public class Router {
         }
         // Determine if there is a message to send
         if (messageHandler != null && messageHandler.getFlag()) {
-            //System.out.println(messageHandler);
             try {
                 messageHandler.setFlag(false);
                 brokerData.writeBuffer.clear();
@@ -146,7 +146,6 @@ public class Router {
         }
         // Determine if there is a message to send
         if (messageHandler != null && messageHandler.getFlag()) {
-            //System.out.println(messageHandler);
             try {
                 messageHandler.setFlag(false);
                 marketData.writeBuffer.clear();
@@ -192,11 +191,13 @@ public class Router {
         } catch (IOException e) {
             System.out.println(RED+"Broker disconnected");
             connectedClients.remove("Broker");
+            this.selector.selectedKeys().remove(key);
         }
         return message;
     }
 
     private String readMarket(SelectionKey key, ClientData marketData) {
+
         SocketChannel socketChannel = (SocketChannel) key.channel();
         String message = "";
         String tempMessage = "";
@@ -224,8 +225,11 @@ public class Router {
             String checksum = arrayMessage[length - 2].replace("=", "\u0001");
             messageHandler.validate_checksum(message, Integer.parseInt(checksum.split(pipe)[1]));
             marketData.readBuffer.clear();
+
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println(RED+"Market disconnected");
+            connectedClients.remove("Market");
+            this.selector.selectedKeys().remove(key);
         }
         return message;
     }
@@ -257,27 +261,35 @@ public class Router {
             socketChannel.configureBlocking(false);
             socketChannel.register(this.selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
 
-            assignClientComponents(socketChannel);
+            assignClientComponents(socketChannel, key);
 
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private void assignClientComponents(SocketChannel socketChannel) {
+    private void assignClientComponents(SocketChannel socketChannel, SelectionKey key) {
         try {
             ClientData clientData = new ClientData();
             String clientType = "";
             String lport = socketChannel.socket().getChannel().getLocalAddress().toString().split(":")[1];
-            clientData.key = socketChannel;
-            clientData.id = socketChannel.socket().getChannel().getRemoteAddress().toString().split(":")[1];
+            clientData.socketchannel = socketChannel;
+            clientData.selectionKey = key;
+            clientData.id = socketChannel.socket().getChannel().getRemoteAddress().toString().split(":")[1]+"0";
             clientData.readBuffer = ByteBuffer.allocate(1024);
             clientData.writeBuffer = ByteBuffer.allocate(1024);
 
-            if (lport.equalsIgnoreCase("5000"))
+            if (lport.equalsIgnoreCase("5000")){
                 clientType = "Broker";
-            else if (lport.equalsIgnoreCase("5001"))
+                this.transportMessage(String.format("Broker Assigned ID [%s]", clientData.id));
+                this.writeBroker(socketChannel, clientData);
+            }
+            else if (lport.equalsIgnoreCase("5001")){
                 clientType = "Market";
+                marketId = clientData.id;
+                this.transportMessage(String.format("Market Assigned ID [%s]", clientData.id));
+                this.writeMarket(socketChannel, clientData);
+            }
 
             clientData.type = clientType;
             connectedClients.put(clientType, clientData);

@@ -25,7 +25,8 @@ public class Market {
             // Read the message
             this.read(socketChannel);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Server not running");
+            System.exit(0);
         }
     }
 
@@ -40,7 +41,8 @@ public class Market {
                         readBuffer.flip();
                         System.out.println(new String(readBuffer.array()));
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        System.out.println("Server not running");
+                        System.exit(0);
                     }
                 }
             }

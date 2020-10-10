@@ -47,12 +47,17 @@ public class Router {
         while (true) {
             try {
                 int selections = this.selector.select();
+//                System.out.println(selections);
                 if (selections > 0) {
 
                     Iterator<SelectionKey> iterator = this.selector.selectedKeys().iterator();
+//                                                System.out.println(this.selector.selectedKeys().toArray().length);
+//                                                System.out.println(selections);
 
                     while (iterator.hasNext()) {
+                        Boolean skip = false;
                         SelectionKey key = iterator.next();
+
                         iterator.remove();
                         if (key.isValid()) {
                             if (key.isAcceptable()) {
@@ -62,34 +67,52 @@ public class Router {
                                 switch (whichClient(key)) {
                                     case 0:
                                         try {
-                                            transportMessage(this.readMarket(key, connectedClients.get("Market")));
+                                            if(transportMessage(this.readMarket(key, connectedClients.get("Market"))))
+                                                continue;
+                                            else {
+                                                skip = true;
+                                            }
                                         } catch (Exception e) {
                                             continue;
                                         }
                                         break;
                                     case 1:
                                         try {
-                                            transportMessage(this.readBroker(key, connectedClients.get("Broker")));
+                                            if(transportMessage(this.readBroker(key, connectedClients.get("Broker"))))
+                                                continue;
+                                            else skip = true;
                                         } catch (Exception e) {
                                             continue;
                                         }
                                         break;
                                 }
+//                                if (iterator.hasNext()){
+//                                    System.out.println("dsssgdsg");
+//                                if (key.channel().equals(key.channel()))
+//                                    iterator.remove();}
+//                                break;
                             }
-                            if (key.isWritable() && messageHandler.getFlag()) {
-                                ClientData clientData = null;
+                            if (!skip) {
+                                if (key.isWritable() && messageHandler.getFlag()) {
+                                    ClientData clientData = null;
 
-                                if (senderChannel.toString().split(" ")[1].split(":")[1].equalsIgnoreCase("5000")) {
-                                    try{
-                                        clientData = connectedClients.get("Market");
-                                        this.writeMarket(clientData.socketchannel, clientData);
-                                    } catch (Exception e) {
-                                        continue;
-                                    }
-                                } else if (senderChannel.toString().split(" ")[1].split(":")[1].equalsIgnoreCase("5001")) {
-                                    try{
-                                        clientData = connectedClients.get("Broker");
-                                        this.writeBroker(clientData.socketchannel, clientData);
+                                    try {
+                                        if (senderChannel.toString().split(" ")[1].split(":")[1].equalsIgnoreCase("5000")) {
+                                            try {
+                                                clientData = connectedClients.get("Market");
+                                                this.writeMarket(clientData.socketchannel, clientData);
+                                            } catch (Exception e) {
+                                                continue;
+                                            }
+                                        } else if (senderChannel.toString().split(" ")[1].split(":")[1].equalsIgnoreCase("5001")) {
+                                            try {
+                                                clientData = connectedClients.get("Broker");
+                                                this.writeBroker(clientData.socketchannel, clientData);
+                                            } catch (Exception e) {
+                                                continue;
+                                            }
+                                        }
+
                                     } catch (Exception e) {
                                         continue;
                                     }
@@ -104,9 +127,10 @@ public class Router {
         }
     }
 
-    private void transportMessage(String message) {
+    private boolean transportMessage(String message) {
         this.messageHandler.setContent(message);
         this.messageHandler.setFlag(true);
+        return message != "";
     }
 
     private class ClientData {
@@ -191,6 +215,11 @@ public class Router {
         } catch (IOException e) {
             System.out.println(RED+"Broker disconnected");
             connectedClients.remove("Broker");
+            try {
+                key.channel().close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
             this.selector.selectedKeys().remove(key);
         }
         return message;
@@ -229,7 +258,13 @@ public class Router {
         } catch (IOException e) {
             System.out.println(RED+"Market disconnected");
             connectedClients.remove("Market");
-            this.selector.selectedKeys().remove(key);
+            try {
+                key.channel().close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+//            key.cancel();
+//            this.selector.selectedKeys().remove(key);
         }
         return message;
     }

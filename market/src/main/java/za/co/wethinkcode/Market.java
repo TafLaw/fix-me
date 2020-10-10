@@ -11,6 +11,7 @@ public class Market implements Executor {
     ByteBuffer writeBuffer = ByteBuffer.allocate(1024);
     ByteBuffer readBuffer = ByteBuffer.allocate(1024);
     private MarketModel marketModel = new MarketModel();
+    private int marketId;
 
     public static void main(String[] args) {
         new Market();
@@ -44,7 +45,7 @@ public class Market implements Executor {
     private void startMarket(String reply) {
         MarketBrokerMessage marketBrokerMessage = new MarketBrokerMessage(reply);
         marketBrokerMessage.purifyMessage();
-        MarketSimulation marketSimulation = new MarketSimulation(marketBrokerMessage.getSanitizedMessage(),marketModel.getInstrumentList());
+        MarketSimulation marketSimulation = new MarketSimulation(marketBrokerMessage.getSanitizedMessage(), marketModel.getInstrumentList());
         marketSimulation.startSimulation();
         String message = marketSimulation.getFixTransactionResult();
         System.out.println("message");
@@ -58,7 +59,7 @@ public class Market implements Executor {
         new Thread(command).start();
     }
 
-    public Runnable read(SocketChannel sc){
+    public Runnable read(SocketChannel sc) {
         return new Runnable() {
             @Override
             public void run() {
@@ -68,7 +69,12 @@ public class Market implements Executor {
                         int read = sc.read(readBuffer);
                         readBuffer.flip();
                         String brokerMessage = new String(readBuffer.array());
-                        startMarket(brokerMessage);
+                        if (brokerMessage.contains("[")) {
+                            System.out.println(brokerMessage);
+                            assignId(brokerMessage);
+                        } else {
+                            startMarket(brokerMessage);
+                        }
                     } catch (IOException e) {
                         System.out.println("Server not running");
                         System.exit(0);
@@ -76,5 +82,9 @@ public class Market implements Executor {
                 }
             }
         };
+    }
+
+    public void assignId(String message){
+        this.marketId = Integer.parseInt(message.split("\\[")[1].split("]")[0]);
     }
 }

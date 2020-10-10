@@ -47,13 +47,25 @@ public class Router {
         while (true) {
             try {
                 int selections = this.selector.select();
+//                System.out.println(selections);
                 if (selections > 0) {
 
                     Iterator<SelectionKey> iterator = this.selector.selectedKeys().iterator();
+//                                                System.out.println(this.selector.selectedKeys().toArray().length);
+//                                                System.out.println(selections);
 
                     while (iterator.hasNext()) {
                         SelectionKey key = iterator.next();
+
+                        System.out.println("Key:" + key+"\n");
+                        try {
+                        Thread.sleep(5000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                         iterator.remove();
+                        if (!key.isValid())
+                            System.out.println("OKASDA");
                         if (key.isValid()) {
                             if (key.isAcceptable()) {
                                 this.accept(key);
@@ -62,7 +74,19 @@ public class Router {
                                 switch (whichClient(key)) {
                                     case 0:
                                         try {
-                                            transportMessage(this.readMarket(key, connectedClients.get("Market")));
+                                                Thread.sleep(5000);
+                                            System.out.println(this.selector.selectedKeys().toArray().length);
+                                                if(transportMessage(this.readMarket(key, connectedClients.get("Market"))))
+                                                continue;
+                                            else {
+                                                if (key.channel().equals(key.channel())){
+                                                    key.cancel();
+                                                    //this.selector.selectedKeys().remove(key);
+
+                                                    System.out.println("message empty");
+                                                    System.out.println(key);
+                                                    }
+                                            }
                                         } catch (Exception e) {
                                             continue;
                                         }
@@ -75,6 +99,11 @@ public class Router {
                                         }
                                         break;
                                 }
+//                                if (iterator.hasNext()){
+//                                    System.out.println("dsssgdsg");
+//                                if (key.channel().equals(key.channel()))
+//                                    iterator.remove();}
+//                                break;
                             }
                             if (key.isWritable() && messageHandler.getFlag()) {
                                 ClientData clientData = null;
@@ -104,9 +133,11 @@ public class Router {
         }
     }
 
-    private void transportMessage(String message) {
+    private boolean transportMessage(String message) {
+        System.out.println("Message :"+message);
         this.messageHandler.setContent(message);
         this.messageHandler.setFlag(true);
+        return message != "";
     }
 
     private class ClientData {
@@ -229,7 +260,7 @@ public class Router {
         } catch (IOException e) {
             System.out.println(RED+"Market disconnected");
             connectedClients.remove("Market");
-            this.selector.selectedKeys().remove(key);
+//            this.selector.selectedKeys().remove(key);
         }
         return message;
     }

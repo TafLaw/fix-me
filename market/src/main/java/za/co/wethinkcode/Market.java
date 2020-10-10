@@ -2,35 +2,63 @@ package za.co.wethinkcode;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
-import java.util.Scanner;
+import java.util.concurrent.Executor;
 
-public class Market {
+public class Market implements Executor {
     private SocketChannel socketChannel;
     ByteBuffer writeBuffer = ByteBuffer.allocate(1024);
     ByteBuffer readBuffer = ByteBuffer.allocate(1024);
+    private MarketModel marketModel = new MarketModel();
 
     public static void main(String[] args) {
         new Market();
     }
+
     public Market() {
         try {
             socketChannel = SocketChannel.open();
             // Connect to the server
             socketChannel.connect(new InetSocketAddress(5001));
-            //Send a message
-            this.write(socketChannel);
             // Read the message
-            this.read(socketChannel);
+            marketModel.createInstrumentList();
+            this.execute(this.read(socketChannel));
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private void read(SocketChannel sc) {
-        new Thread(new Runnable() {
+    private void write(SocketChannel sc, String message) {
+        writeBuffer.clear();
+        writeBuffer.put(message.getBytes());
+        writeBuffer.flip();
+        try {
+            sc.write(writeBuffer);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void startMarket(String reply) {
+        MarketBrokerMessage marketBrokerMessage = new MarketBrokerMessage(reply);
+        marketBrokerMessage.purifyMessage();
+        MarketSimulation marketSimulation = new MarketSimulation(marketBrokerMessage.getSanitizedMessage(),marketModel.getInstrumentList());
+        marketSimulation.startSimulation();
+        String message = marketSimulation.getFixTransactionResult();
+        System.out.println("message");
+        System.out.println(message);
+        //System.exit(0);
+        write(this.socketChannel, message);
+    }
+
+    @Override
+    public void execute(Runnable command) {
+        new Thread(command).start();
+    }
+
+    public Runnable read(SocketChannel sc){
+        return new Runnable() {
             @Override
             public void run() {
                 while (true) {
@@ -38,39 +66,13 @@ public class Market {
                         readBuffer.clear();
                         int read = sc.read(readBuffer);
                         readBuffer.flip();
-                        System.out.println(new String(readBuffer.array()));
+                        String brokerMessage = new String(readBuffer.array());
+                        startMarket(brokerMessage);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                 }
             }
-        }).start();
-    }
-
-    private void write(SocketChannel sc) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (true) {
-                    Scanner scanner = new Scanner(System.in);
-                    String next = scanner.next();
-                    writeBuffer.clear();
-                    writeBuffer.put(next.getBytes());
-                    writeBuffer.flip();
-                    try {
-                        sc.write(writeBuffer);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }).start();
-    }
-
-    private void startMarket(String reply){
-        MarketBrokerMessage marketBrokerMessage = new MarketBrokerMessage(reply);
-        marketBrokerMessage.purifyMessage();
-        MarketSimulation marketSimulation = new MarketSimulation(marketBrokerMessage.getSanitizedMessage());
-        marketSimulation.startSimulation();
+        };
     }
 }

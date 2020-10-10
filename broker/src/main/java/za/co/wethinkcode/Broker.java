@@ -33,7 +33,8 @@ public class Broker {
             // Read the message
             this.read(socketChannel);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Server not running");
+            System.exit(0);
         }
     }
 
@@ -43,13 +44,13 @@ public class Broker {
             public void run() {
                 while (true) {
                     try {
+                        readBuffer.clear();
+                        int read = sc.read(readBuffer);
+                        readBuffer.flip();
                         String message = new String(readBuffer.array());
                         System.out.println(message);
                         String[] messages = message.split(",");
                         System.out.println("Pos: "+ messages);
-                        readBuffer.clear();
-                        int read = sc.read(readBuffer);
-                        readBuffer.flip();
                         System.out.println("length: "+messages.length);
                         if (messages.length == 2){
                             System.out.println("lana");
@@ -79,7 +80,12 @@ public class Broker {
 //                    Scanner scanner = new Scanner(System.in);
                     String fixMessage = message;
                     writeBuffer.clear();
-                    writeBuffer.put(fixMessage.getBytes());
+                    try {
+                        writeBuffer.put(fixMessage.getBytes());
+                    } catch (Exception e) {
+                        writeBuffer = ByteBuffer.allocateDirect(fixMessage.getBytes().length+100);
+                        writeBuffer.put(fixMessage.getBytes());
+                    }
                     writeBuffer.flip();
                     try {
                         sc.write(writeBuffer);

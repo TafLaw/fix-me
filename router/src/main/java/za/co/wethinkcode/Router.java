@@ -57,15 +57,7 @@ public class Router {
                     while (iterator.hasNext()) {
                         SelectionKey key = iterator.next();
 
-                        System.out.println("Key:" + key+"\n");
-                        try {
-                        Thread.sleep(5000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
                         iterator.remove();
-                        if (!key.isValid())
-                            System.out.println("OKASDA");
                         if (key.isValid()) {
                             if (key.isAcceptable()) {
                                 this.accept(key);
@@ -74,14 +66,12 @@ public class Router {
                                 switch (whichClient(key)) {
                                     case 0:
                                         try {
-                                                Thread.sleep(5000);
-                                            System.out.println(this.selector.selectedKeys().toArray().length);
                                                 if(transportMessage(this.readMarket(key, connectedClients.get("Market"))))
                                                 continue;
                                             else {
                                                 if (key.channel().equals(key.channel())){
-                                                    key.cancel();
-                                                    //this.selector.selectedKeys().remove(key);
+//                                                    key.cancel();
+//                                                    this.selector.selectedKeys().remove(key);
 
                                                     System.out.println("message empty");
                                                     System.out.println(key);
@@ -260,6 +250,12 @@ public class Router {
         } catch (IOException e) {
             System.out.println(RED+"Market disconnected");
             connectedClients.remove("Market");
+            try {
+                key.channel().close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+//            key.cancel();
 //            this.selector.selectedKeys().remove(key);
         }
         return message;

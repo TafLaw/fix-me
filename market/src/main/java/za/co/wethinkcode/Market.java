@@ -48,9 +48,8 @@ public class Market implements Executor {
         MarketSimulation marketSimulation = new MarketSimulation(marketBrokerMessage.getSanitizedMessage(), marketModel.getInstrumentList());
         marketSimulation.startSimulation();
         String message = marketSimulation.getFixTransactionResult();
-        System.out.println("message");
+        System.out.println("Market to broker:");
         System.out.println(message);
-        //System.exit(0);
         write(this.socketChannel, message);
     }
 
@@ -73,6 +72,7 @@ public class Market implements Executor {
                             System.out.println(brokerMessage);
                             assignId(brokerMessage);
                         } else {
+                            System.out.println("Broker to market:");
                             startMarket(brokerMessage);
                         }
                     } catch (IOException e) {

@@ -31,6 +31,7 @@ public class MarketSimulation {
         } else {
             this.rejected();
         }
+        System.out.println(stockList);
     }
 
     private Boolean checkPrice(){
@@ -66,14 +67,14 @@ public class MarketSimulation {
     private void rejected(){
         String body = "35=D" +"|" + "49="+ brokerOder.get("56") + "|" + "56="+ brokerOder.get("49") + "|" +"39=8"+ "|";
         String header = "8=FIX.4.4|9=" + body.length() + "|";
-        int checkSum = generate_checksum(header+body);
+        int checkSum = generate_checksum(body);
         this.fixTransactionResult = header + body + "10=" + checkSum + "|";
     }
 
     private void accepted(){
         String body = "35=D" +"|" + "49="+ brokerOder.get("56") + "|" + "56="+ brokerOder.get("49") + "|" +"39=2"+ "|";
         String header = "8=FIX.4.4|9=" + body.length() + "|";
-        int checkSum = generate_checksum(header+body);
+        int checkSum = generate_checksum(body);
         this.fixTransactionResult = header + body + "10=" + checkSum + "|";
     }
 

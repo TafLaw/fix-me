@@ -57,9 +57,9 @@ public class MessageHandler {
 
     }
 
-    public String anotherTransaction(){
+    public String anotherTransaction(Console console){
 
-        Console console = new Console();
+//        Console console = new Console();
 
         System.out.println("\nWould you like to make another transaction? yes or no");
         String userInput = input.next();
@@ -72,7 +72,7 @@ public class MessageHandler {
             return userInput;
         } else {
             System.out.println("Enter a valid input");
-            return anotherTransaction();
+            return anotherTransaction(console);
         }
 
     }

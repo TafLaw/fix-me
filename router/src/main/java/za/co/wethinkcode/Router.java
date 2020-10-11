@@ -200,16 +200,15 @@ public class Router {
 
             tempMessage = new String(brokerData.readBuffer.array());
             message = tempMessage;
-            System.out.println(YELLOW+message);
+            System.out.println("messa: "+YELLOW+message);
 
             tempMessage = tempMessage.replace("|", "\u0001");
             String pipe = "" + (char)1;
             String [] arrayMessage = tempMessage.split(pipe);
             int length = arrayMessage.length;
-            System.out.println(arrayMessage[length-2]);
 
             String checksum = arrayMessage[length - 2].replace("=", "\u0001");
-            messageHandler.validate_checksum(message, Integer.parseInt(checksum.split(pipe)[1]));
+            //messageHandler.validate_checksum(message, Integer.parseInt(checksum.split(pipe)[1]));
 
             brokerData.readBuffer.clear();
         } catch (IOException e) {

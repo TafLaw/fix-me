@@ -11,6 +11,8 @@ import java.util.Scanner;
 
 public class Broker {
 
+    private MessageHandler messageHandler;
+    private Console console;
     private SocketChannel socketChannel;
     ByteBuffer writeBuffer = ByteBuffer.allocate(1024);
     ByteBuffer readBuffer = ByteBuffer.allocate(1024);
@@ -25,6 +27,9 @@ public class Broker {
     }
     public Broker() {
         try {
+            messageHandler = new MessageHandler();
+            console = new Console(messageHandler);
+
             socketChannel = SocketChannel.open();
             // Connect to the server
             socketChannel.connect(new InetSocketAddress(5000));
@@ -61,7 +66,8 @@ public class Broker {
                         }
                         System.out.println(message);
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        System.out.println("Server not running");
+                        System.exit(0);
                     }
                 }
             }
@@ -73,23 +79,23 @@ public class Broker {
             @Override
             public void run() {
                 Scanner scanner = new Scanner(System.in);
-                Console console = new Console();
-                String message = console.operation();
-                MessageHandler messageHandler = new MessageHandler();
+                    String message = console.operation();
+//                String message;
+                //console = new Console();
+//                MessageHandler messageHandler = new MessageHandler();
                 while (true) {
+//                    System.out.println("here");
+//                    message = console.getTheMessage();
+//                    System.out.println("NEW : "+message);
 //                    Scanner scanner = new Scanner(System.in);
                     String fixMessage = message;
                     writeBuffer.clear();
-                    try {
-                        writeBuffer.put(fixMessage.getBytes());
-                    } catch (Exception e) {
-                        writeBuffer = ByteBuffer.allocateDirect(fixMessage.getBytes().length+100);
-                        writeBuffer.put(fixMessage.getBytes());
-                    }
+                    writeBuffer.put(fixMessage.getBytes());
                     writeBuffer.flip();
                     try {
                         sc.write(writeBuffer);
-                        messageHandler.anotherTransaction();
+                        messageHandler.anotherTransaction(console);
+                        message = console.getTheMessage();
 //                        String c = scanner.next();
                     } catch (IOException e) {
                         e.printStackTrace();

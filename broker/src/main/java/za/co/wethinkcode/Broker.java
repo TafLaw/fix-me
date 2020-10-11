@@ -11,6 +11,7 @@ import java.util.Scanner;
 
 public class Broker {
 
+    private String firstMessage;
     private MessageHandler messageHandler;
     private Console console;
     private SocketChannel socketChannel;
@@ -33,10 +34,10 @@ public class Broker {
             socketChannel = SocketChannel.open();
             // Connect to the server
             socketChannel.connect(new InetSocketAddress(5000));
-            //Send a message
-            this.write(socketChannel);
             // Read the message
             this.read(socketChannel);
+            //Send a message
+            this.write(socketChannel);
         } catch (IOException e) {
             System.out.println("Server not running");
             System.exit(0);
@@ -53,17 +54,15 @@ public class Broker {
                         int read = sc.read(readBuffer);
                         readBuffer.flip();
                         String message = new String(readBuffer.array());
-                        System.out.println(message);
+
                         String[] messages = message.split(",");
-                        System.out.println("Pos: "+ messages);
-                        System.out.println("length: "+messages.length);
+
                         if (messages.length == 2){
-                            System.out.println("lana");
-                            message = messages[0];
+                            firstMessage = message = messages[0];
                             receiverId = messages[1];
                             brokerId = messages[0].split("\\[")[1].split("]")[0];
-                            System.out.println(brokerId +"=== "+ receiverId);
                         }
+
                         System.out.println(message);
                     } catch (IOException e) {
                         System.out.println("Server not running");
@@ -78,27 +77,28 @@ public class Broker {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                Scanner scanner = new Scanner(System.in);
-                    String message = console.operation();
-//                String message;
-                //console = new Console();
-//                MessageHandler messageHandler = new MessageHandler();
+                boolean land = true;
+                String message = null;
                 while (true) {
-//                    System.out.println("here");
-//                    message = console.getTheMessage();
-//                    System.out.println("NEW : "+message);
-//                    Scanner scanner = new Scanner(System.in);
-                    String fixMessage = message;
-                    writeBuffer.clear();
-                    writeBuffer.put(fixMessage.getBytes());
-                    writeBuffer.flip();
-                    try {
-                        sc.write(writeBuffer);
-                        messageHandler.anotherTransaction(console);
-                        message = console.getTheMessage();
-//                        String c = scanner.next();
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                    if (land && firstMessage == null)
+                        continue;
+                    else {
+                        if (land){
+                            message = console.operation();
+                            land = false;
+                        }
+                        String fixMessage = message;
+                        writeBuffer.clear();
+                        writeBuffer.put(fixMessage.getBytes());
+                        writeBuffer.flip();
+                        try {
+                            sc.write(writeBuffer);
+                            messageHandler.anotherTransaction(console);
+                            message = console.getTheMessage();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
                     }
                 }
             }

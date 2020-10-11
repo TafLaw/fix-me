@@ -1,6 +1,7 @@
 package za.co.wethinkcode;
 
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.Scanner;
 
 public class MessageHandler {
@@ -92,5 +93,27 @@ public class MessageHandler {
         checksum = total % 256;
 //        System.out.println("10=" + checksum);
         return checksum;
+    }
+
+    public String orderStatus(String message)
+    {
+        HashMap<String,String> brokerOder = new HashMap<>();
+        String status;
+
+        String[] splitMessage = message.split("\\|");
+
+        for (String split : splitMessage
+        ) {
+            String[] splitValues = split.split("=");
+            if (splitValues.length == 2) {
+                brokerOder.put(splitValues[0], splitValues[1]);
+            }
+        }
+
+        status = brokerOder.get("39").equals("2") ? "Order has been accepted" : "Order has been rejected";
+//        status = "35=D" +"|" + "49="+ brokerOder.get("56") + "|" + "56="+ brokerOder.get("49") + "|" +"39="+brokerOder.get("39")+ "|";
+
+
+        return (status);
     }
 }

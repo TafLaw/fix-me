@@ -48,6 +48,7 @@ public class Broker {
         new Thread(new Runnable() {
             @Override
             public void run() {
+                boolean land = true;
                 while (true) {
                     try {
                         readBuffer.clear();
@@ -63,7 +64,9 @@ public class Broker {
                             brokerId = messages[0].split("\\[")[1].split("]")[0];
                         }
 
-                        System.out.println(message);
+//                        System.out.println(message);
+                        if (message.length() > 27)
+                        System.out.println(messageHandler.orderStatus(message));
                     } catch (IOException e) {
                         System.out.println("Server not running");
                         System.exit(0);
@@ -93,9 +96,10 @@ public class Broker {
                         writeBuffer.flip();
                         try {
                             sc.write(writeBuffer);
+                            Thread.sleep(200);
                             messageHandler.anotherTransaction(console);
                             message = console.getTheMessage();
-                        } catch (IOException e) {
+                        } catch (IOException | InterruptedException e) {
                             e.printStackTrace();
                         }
 

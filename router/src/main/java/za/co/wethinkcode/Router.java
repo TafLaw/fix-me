@@ -251,7 +251,8 @@ public class Router {
             System.out.println(arrayMessage[length-2]);
 
             String checksum = arrayMessage[length - 2].replace("=", "\u0001");
-            messageHandler.validate_checksum(message, Integer.parseInt(checksum.split(pipe)[1]));
+//            System.out.println("What i need to checksum " + messageHandler.removeChecksum(message));
+            messageHandler.validate_checksum(messageHandler.removeChecksum(message), Integer.parseInt(checksum.split(pipe)[1]));
             marketData.readBuffer.clear();
 
         } catch (IOException e) {

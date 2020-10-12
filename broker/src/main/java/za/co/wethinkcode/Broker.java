@@ -11,6 +11,10 @@ import java.util.Scanner;
 
 public class Broker {
 
+    public static final String RED = "\u001B[31m";
+    public static final String GREEN = "\u001B[32m";
+    public static final String YELLOW = "\u001B[33m";
+
     private String firstMessage;
     private MessageHandler messageHandler;
     private Console console;
@@ -26,6 +30,7 @@ public class Broker {
         new Broker();
 
     }
+
     public Broker() {
         try {
             messageHandler = new MessageHandler();
@@ -48,6 +53,7 @@ public class Broker {
         new Thread(new Runnable() {
             @Override
             public void run() {
+                boolean land = true;
                 while (true) {
                     try {
                         readBuffer.clear();
@@ -57,13 +63,17 @@ public class Broker {
 
                         String[] messages = message.split(",");
 
-                        if (messages.length == 2){
+                        if (messages.length == 2) {
                             firstMessage = message = messages[0];
                             receiverId = messages[1];
                             brokerId = messages[0].split("\\[")[1].split("]")[0];
                         }
 
-                        System.out.println(message);
+//                        System.out.println(message);
+                        if (message.length() > 27)
+                            System.out.println(messageHandler.orderStatus(message));
+                        else
+                            System.out.println(message);
                     } catch (IOException e) {
                         System.out.println("Server not running");
                         System.exit(0);
@@ -83,7 +93,7 @@ public class Broker {
                     if (land && firstMessage == null)
                         continue;
                     else {
-                        if (land){
+                        if (land) {
                             message = console.operation();
                             land = false;
                         }
@@ -93,9 +103,10 @@ public class Broker {
                         writeBuffer.flip();
                         try {
                             sc.write(writeBuffer);
+                            Thread.sleep(200);
                             messageHandler.anotherTransaction(console);
                             message = console.getTheMessage();
-                        } catch (IOException e) {
+                        } catch (IOException | InterruptedException e) {
                             e.printStackTrace();
                         }
 

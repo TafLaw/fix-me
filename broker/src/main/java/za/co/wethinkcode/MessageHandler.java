@@ -60,8 +60,6 @@ public class MessageHandler {
 
     public String anotherTransaction(Console console){
 
-//        Console console = new Console();
-
         System.out.println(Broker.YELLOW + "\nWould you like to make another transaction? yes or no");
         String userInput = input.next();
         if (userInput.toLowerCase().equals("yes") || userInput.toLowerCase().equals("no")){
@@ -84,14 +82,12 @@ public class MessageHandler {
         int checksum;
         message = message.replace('|', '\u0001');
         byte[] messageBytes = message.getBytes(StandardCharsets.US_ASCII);
-//        System.out.println("Length"+message.length());
         for (byte chData : messageBytes)
         {
             total += chData;
         }
 
         checksum = total % 256;
-//        System.out.println("10=" + checksum);
         return checksum;
     }
 
@@ -111,8 +107,6 @@ public class MessageHandler {
         }
 
         status = brokerOder.get("39").equals("2") ? Broker.GREEN + "Order has been accepted" : Broker.RED + "Order has been rejected";
-//        status = "35=D" +"|" + "49="+ brokerOder.get("56") + "|" + "56="+ brokerOder.get("49") + "|" +"39="+brokerOder.get("39")+ "|";
-
 
         return (status);
     }

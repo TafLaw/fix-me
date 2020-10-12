@@ -47,13 +47,9 @@ public class Router {
         while (true) {
             try {
                 int selections = this.selector.select();
-//                System.out.println(selections);
+
                 if (selections > 0) {
-
                     Iterator<SelectionKey> iterator = this.selector.selectedKeys().iterator();
-//                                                System.out.println(this.selector.selectedKeys().toArray().length);
-//                                                System.out.println(selections);
-
                     while (iterator.hasNext()) {
                         Boolean skip = false;
                         SelectionKey key = iterator.next();
@@ -86,16 +82,10 @@ public class Router {
                                         }
                                         break;
                                 }
-//                                if (iterator.hasNext()){
-//                                    System.out.println("dsssgdsg");
-//                                if (key.channel().equals(key.channel()))
-//                                    iterator.remove();}
-//                                break;
                             }
                             if (!skip) {
                                 if (key.isWritable() && messageHandler.getFlag()) {
                                     ClientData clientData = null;
-
                                     try {
                                         if (senderChannel.toString().split(" ")[1].split(":")[1].equalsIgnoreCase("5000")) {
                                             try {
@@ -112,7 +102,6 @@ public class Router {
                                                 continue;
                                             }
                                         }
-
                                     } catch (Exception e) {
                                         continue;
                                     }
@@ -208,8 +197,6 @@ public class Router {
             int length = arrayMessage.length;
 
             String checksum = arrayMessage[length - 2].replace("=", "\u0001");
-            //messageHandler.validate_checksum(message, Integer.parseInt(checksum.split(pipe)[1]));
-
             brokerData.readBuffer.clear();
         } catch (IOException e) {
             System.out.println(RED+"Broker disconnected");
@@ -248,10 +235,8 @@ public class Router {
             String pipe = "" + (char)1;
             String [] arrayMessage = tempMessage.split(pipe);
             int length = arrayMessage.length;
-            System.out.println(arrayMessage[length-2]);
 
             String checksum = arrayMessage[length - 2].replace("=", "\u0001");
-//            System.out.println("What i need to checksum " + messageHandler.removeChecksum(message));
             messageHandler.validate_checksum(messageHandler.removeChecksum(message), Integer.parseInt(checksum.split(pipe)[1]));
             marketData.readBuffer.clear();
 
@@ -263,8 +248,6 @@ public class Router {
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
-//            key.cancel();
-//            this.selector.selectedKeys().remove(key);
         }
         return message;
     }
@@ -290,14 +273,12 @@ public class Router {
     private void accept(SelectionKey key) {
         ServerSocketChannel serverSocketChannel = (ServerSocketChannel) key.channel();
         try {
-
             SocketChannel socketChannel = serverSocketChannel.accept();
-            System.out.println(String.format(GREEN+"\nNew client connected... host:%s;port:%d", socketChannel.socket().getLocalAddress(), socketChannel.socket().getPort()));
+            System.out.println(String.format(GREEN+"\nNew client connected... host:%s;port:%d", socketChannel.socket().getLocalAddress(), socketChannel.socket().getLocalPort()));
             socketChannel.configureBlocking(false);
             socketChannel.register(this.selector, SelectionKey.OP_READ | SelectionKey.OP_WRITE);
 
             assignClientComponents(socketChannel, key);
-
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -334,10 +315,5 @@ public class Router {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
-
-    //136921996123-me1hmshorbvj8dhcmrqffom3kcs79nts.apps.googleusercontent.com
-//    q1qOup57TPLolhozawbci5pC
-
 }

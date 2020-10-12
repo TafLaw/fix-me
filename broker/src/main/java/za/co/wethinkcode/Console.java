@@ -10,7 +10,6 @@ public class Console {
     }
 
     public String getTheMessage() {
-//        theMessage = this.operation();
         return theMessage;
     }
 
@@ -26,15 +25,11 @@ public class Console {
     }
 
     public String operation(){
-
-//        MessageHandler messageHandler = new MessageHandler();
-
         int buyOrSell;
-        String instrument = new String();
+        String instrument;
         String quantity;
-        String price = new String();
+        String price;
 
-//        Scanner input = new Scanner(System.in);
         buyOrSell = messageHandler.buyOrSell();
         instrument = messageHandler.instrumentSelect();
         quantity = messageHandler.quantity();

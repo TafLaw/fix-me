@@ -10,7 +10,7 @@ public class MessageHandler {
 
     public int buyOrSell(){
 
-        System.out.println("Do you wish to Buy or Sell?");
+        System.out.println(Broker.YELLOW + "Do you wish to Buy or Sell?");
         String userInput = input.next();
         if (userInput.toLowerCase().equals("buy") || userInput.toLowerCase().equals("sell")){
             if (userInput.toLowerCase().equals("buy")){
@@ -19,7 +19,7 @@ public class MessageHandler {
                 return 2;
             }
         } else {
-            System.out.println("Enter a valid input");
+            System.out.println(Broker.RED + "Enter a valid input");
             return buyOrSell();
         }
     }
@@ -31,8 +31,8 @@ public class MessageHandler {
                 "FACEBOOK INC (FB)",
                 "INTERNATIONAL BUS MACH CORP (IBM)",
                 "TWITTER INC (TWTR)"};
-        System.out.println("\nSelect an instrument to trade: ");
-        System.out.println("----Name and Symbol----");
+        System.out.println(Broker.YELLOW + "\nSelect an instrument to trade: ");
+        System.out.println(Broker.YELLOW + "----Name and Symbol----");
         for (int i = 0; i < instruments.length; i++) {
             System.out.println((i+1)+". "+ instruments[i]);
         }
@@ -43,7 +43,7 @@ public class MessageHandler {
 
     public String quantity(){
 
-        System.out.println("\nHow many shares would you like to buy?");
+        System.out.println(Broker.YELLOW + "\nHow many shares would you like to buy?");
         String userInput = input.next();
 
         return userInput;
@@ -51,7 +51,7 @@ public class MessageHandler {
 
     public String price(){
 
-        System.out.println("\ntype your offer (R25 - R270)");
+        System.out.println(Broker.YELLOW + "\ntype your offer (R25 - R270)");
         String userInput = input.next();
 
         return userInput;
@@ -62,7 +62,7 @@ public class MessageHandler {
 
 //        Console console = new Console();
 
-        System.out.println("\nWould you like to make another transaction? yes or no");
+        System.out.println(Broker.YELLOW + "\nWould you like to make another transaction? yes or no");
         String userInput = input.next();
         if (userInput.toLowerCase().equals("yes") || userInput.toLowerCase().equals("no")){
             if (userInput.equals("yes")){
@@ -72,7 +72,7 @@ public class MessageHandler {
             }
             return userInput;
         } else {
-            System.out.println("Enter a valid input");
+            System.out.println(Broker.RED + "Enter a valid input");
             return anotherTransaction(console);
         }
 
@@ -110,7 +110,7 @@ public class MessageHandler {
             }
         }
 
-        status = brokerOder.get("39").equals("2") ? "Order has been accepted" : "Order has been rejected";
+        status = brokerOder.get("39").equals("2") ? Broker.GREEN + "Order has been accepted" : Broker.RED + "Order has been rejected";
 //        status = "35=D" +"|" + "49="+ brokerOder.get("56") + "|" + "56="+ brokerOder.get("49") + "|" +"39="+brokerOder.get("39")+ "|";
 
 

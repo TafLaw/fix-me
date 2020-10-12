@@ -11,24 +11,41 @@ import java.util.Scanner;
 
 public class Broker {
 
+    public static final String RED = "\u001B[31m";
+    public static final String GREEN = "\u001B[32m";
+    public static final String YELLOW = "\u001B[33m";
+
+    private String firstMessage;
+    private MessageHandler messageHandler;
+    private Console console;
     private SocketChannel socketChannel;
     ByteBuffer writeBuffer = ByteBuffer.allocate(1024);
     ByteBuffer readBuffer = ByteBuffer.allocate(1024);
+    static String receiverId;
+    static String brokerId;
 
     public static void main(String[] args) {
+
+
         new Broker();
+
     }
+
     public Broker() {
         try {
+            messageHandler = new MessageHandler();
+            console = new Console(messageHandler);
+
             socketChannel = SocketChannel.open();
             // Connect to the server
             socketChannel.connect(new InetSocketAddress(5000));
-            //Send a message
-            this.write(socketChannel);
             // Read the message
             this.read(socketChannel);
+            //Send a message
+            this.write(socketChannel);
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Server not running");
+            System.exit(0);
         }
     }
 
@@ -36,14 +53,30 @@ public class Broker {
         new Thread(new Runnable() {
             @Override
             public void run() {
+                boolean land = true;
                 while (true) {
                     try {
                         readBuffer.clear();
                         int read = sc.read(readBuffer);
                         readBuffer.flip();
-                        System.out.println(new String(readBuffer.array()));
+                        String message = new String(readBuffer.array());
+
+                        String[] messages = message.split(",");
+
+                        if (messages.length == 2) {
+                            firstMessage = message = messages[0];
+                            receiverId = messages[1];
+                            brokerId = messages[0].split("\\[")[1].split("]")[0];
+                        }
+
+//                        System.out.println(message);
+                        if (message.length() > 27)
+                            System.out.println(messageHandler.orderStatus(message));
+                        else
+                            System.out.println(message);
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        System.out.println("Server not running");
+                        System.exit(0);
                     }
                 }
             }
@@ -54,16 +87,29 @@ public class Broker {
         new Thread(new Runnable() {
             @Override
             public void run() {
+                boolean land = true;
+                String message = null;
                 while (true) {
-                    Scanner scanner = new Scanner(System.in);
-                    String next = scanner.next();
-                    writeBuffer.clear();
-                    writeBuffer.put(next.getBytes());
-                    writeBuffer.flip();
-                    try {
-                        sc.write(writeBuffer);
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                    if (land && firstMessage == null)
+                        continue;
+                    else {
+                        if (land) {
+                            message = console.operation();
+                            land = false;
+                        }
+                        String fixMessage = message;
+                        writeBuffer.clear();
+                        writeBuffer.put(fixMessage.getBytes());
+                        writeBuffer.flip();
+                        try {
+                            sc.write(writeBuffer);
+                            Thread.sleep(200);
+                            messageHandler.anotherTransaction(console);
+                            message = console.getTheMessage();
+                        } catch (IOException | InterruptedException e) {
+                            e.printStackTrace();
+                        }
+
                     }
                 }
             }

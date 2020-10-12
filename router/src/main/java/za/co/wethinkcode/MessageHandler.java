@@ -1,6 +1,7 @@
 package za.co.wethinkcode;
 
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 
 class MessageHandler {
     private Boolean flag=false;
@@ -41,19 +42,40 @@ class MessageHandler {
 
     public void validate_checksum(String message, int checksum){
 
-        System.out.println("Passed : "+ message);
+//        System.out.println("Passed : "+ message);
         int myChecksum;
 
         myChecksum = generate_checksum(message);
-        System.out.println("Passed : "+ checksum);
-        System.out.println("Passed : "+ myChecksum);
+//        System.out.println("Passed : "+ checksum);
+//        System.out.println("Passed : "+ myChecksum);
 
         if(myChecksum == checksum){
-            System.out.println("Validation Success: No errors found");
+            System.out.println("Checksum success");
         } else {
-            System.out.println("Validation Failed: Errors found");
+            System.out.println("Error: Invalid checksum");
         }
 
+    }
+
+    public String removeChecksum(String message)
+    {
+        HashMap<String,String> brokerOder = new HashMap<>();
+        String body;
+
+        String[] splitMessage = message.split("\\|");
+
+        for (String split : splitMessage
+        ) {
+            String[] splitValues = split.split("=");
+            if (splitValues.length == 2) {
+                brokerOder.put(splitValues[0], splitValues[1]);
+            }
+        }
+
+        body = "35=D" +"|" + "49="+ brokerOder.get("56") + "|" + "56="+ brokerOder.get("49") + "|" +"39="+brokerOder.get("39")+ "|";
+        String header = "8=FIX.4.4|9=" + body.length() + "|";
+
+        return (header+body);
     }
 
 }

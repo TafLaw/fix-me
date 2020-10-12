@@ -41,13 +41,9 @@ class MessageHandler {
     }
 
     public void validate_checksum(String message, int checksum){
-
-//        System.out.println("Passed : "+ message);
         int myChecksum;
 
         myChecksum = generate_checksum(message);
-//        System.out.println("Passed : "+ checksum);
-//        System.out.println("Passed : "+ myChecksum);
 
         if(myChecksum == checksum){
             System.out.println("Checksum success");
@@ -77,6 +73,5 @@ class MessageHandler {
 
         return (header+body);
     }
-
 }
 

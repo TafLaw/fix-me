@@ -1,13 +1,9 @@
 package za.co.wethinkcode;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
-import java.util.Scanner;
 
 public class Broker {
 
@@ -25,10 +21,7 @@ public class Broker {
     static String brokerId;
 
     public static void main(String[] args) {
-
-
         new Broker();
-
     }
 
     public Broker() {
@@ -53,7 +46,6 @@ public class Broker {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                boolean land = true;
                 while (true) {
                     try {
                         readBuffer.clear();
@@ -69,7 +61,6 @@ public class Broker {
                             brokerId = messages[0].split("\\[")[1].split("]")[0];
                         }
 
-//                        System.out.println(message);
                         if (message.length() > 27)
                             System.out.println(messageHandler.orderStatus(message));
                         else

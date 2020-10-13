@@ -26,13 +26,14 @@ public class MessageHandler {
 
     public String instrumentSelect(){
 
-        String[] instruments = {"APPLE INC (AAPL)",
-                "GOLD",
-                "FACEBOOK INC (FB)",
-                "INTERNATIONAL BUS MACH CORP (IBM)",
-                "TWITTER INC (TWTR)"};
+        String[] instruments = {"| APPLE INC (AAPL)                  | (114 - 134)" ,
+                                "| GOLD                              | (17 - 37)",
+                                "| FACEBOOK INC (FB)                 | (255 - 275)",
+                                "| INTERNATIONAL BUS MACH CORP (IBM) | (117 - 137)",
+                                "| TWITTER INC (TWTR)                | (38 - 58)"};
+
         System.out.println(Broker.YELLOW + "\nSelect an instrument to trade: ");
-        System.out.println(Broker.YELLOW + "----Name and Symbol----");
+        System.out.println(Broker.YELLOW + "   | ----------Name and Symbol---------|----Price-----|");
         for (int i = 0; i < instruments.length; i++) {
             System.out.println((i+1)+". "+ instruments[i]);
         }
@@ -51,7 +52,7 @@ public class MessageHandler {
 
     public String price(){
 
-        System.out.println(Broker.YELLOW + "\ntype your offer (R25 - R270)");
+        System.out.println(Broker.YELLOW + "\ntype your offer (25 - 280)");
         String userInput = input.next();
 
         return userInput;
@@ -61,8 +62,8 @@ public class MessageHandler {
     public String anotherTransaction(Console console){
 
         System.out.println(Broker.YELLOW + "\nWould you like to make another transaction? yes or no");
-        String userInput = input.next();
-        if (userInput.toLowerCase().equals("yes") || userInput.toLowerCase().equals("no")){
+        String userInput = input.next().toLowerCase();
+        if (userInput.equals("yes") || userInput.equals("no")){
             if (userInput.equals("yes")){
                 console.operation();
             } else {

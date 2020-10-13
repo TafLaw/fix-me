@@ -39,7 +39,7 @@ public class Console {
         String receiverId = copyString(Broker.receiverId.toCharArray());
 
         //                                          senderID                 receiverID             buy=1 sell=2
-        String body = String.format("35=D|49=%s|56=%s|54=%s|590=%s|53=%s|44=%s|", brokerId, receiverId, buyOrSell, instrument, quantity, price);
+        String body = String.format("35=D|49=%s|56=%s|54=%s|590=%s|53=%s|44=%s|", brokerId, receiverId, buyOrSell, instrument.toUpperCase(), quantity, price);
 
         //length
         String header = "8=FIX.4.4|9=" + body.length() + "|";

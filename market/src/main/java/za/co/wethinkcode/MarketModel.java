@@ -46,7 +46,8 @@ public class MarketModel {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("API is Down, try again later!!!");
+            System.exit(0);
         }
     }
 

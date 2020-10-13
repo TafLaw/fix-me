@@ -37,6 +37,9 @@ public class MarketSimulation {
     private Boolean checkPrice(){
         double price = stockList.get(brokerOder.get("590")).get("price");
         double brokerPrice = validateUnit(brokerOder.get("44"));
+        if(brokerPrice <= 0){
+            return false;
+        }
         return brokerPrice >= price - 10 && brokerPrice <= price + 10;
     }
 
@@ -44,17 +47,17 @@ public class MarketSimulation {
         double quantity = stockList.get(brokerOder.get("590")).get("quantity");
         double brokerQuantity = validateUnit(brokerOder.get("53"));
         if(quantity <= 0 || brokerQuantity <= 0){
-            this.rejected();
+            return false;
         }
         return brokerQuantity <= quantity;
     }
 
     private Double validateUnit(String check){
-        double result = 0.0;
+        double result;
         try {
             result = Double.parseDouble(check);
         } catch (Exception e){
-            this.rejected();
+            result = 0.0;
         }
         return result;
     }

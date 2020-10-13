@@ -298,7 +298,6 @@ public class Router {
             if (lport.equalsIgnoreCase("5000")){
                 clientType = "Broker";
                 Broker.receiverId = marketId;
-                System.out.println(Broker.receiverId);
                 Broker.brokerId = clientData.id;
                 this.transportMessage(String.format("Broker Assigned ID [%s],%s", clientData.id, marketId));
                 this.writeBroker(socketChannel, clientData);

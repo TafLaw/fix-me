@@ -37,7 +37,7 @@ public class Broker {
             //Send a message
             this.write(socketChannel);
         } catch (IOException e) {
-            System.out.println("Server not running");
+            System.out.println(RED+"Server not running");
             System.exit(0);
         }
     }

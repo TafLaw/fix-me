@@ -31,14 +31,19 @@ public class MarketModel {
                 }
                 bufferedReader.close();
                 httpURLConnection.disconnect();
-                JSONObject jsonObject = new JSONObject(content.toString());
-                JSONObject jsonObject1 = new JSONObject(jsonObject.get("Global Quote").toString());
-                HashMap<String,Double> instrumentValues = new HashMap<String, Double>();
-                instrumentValues.put("price",Double.parseDouble(jsonObject1.get("05. price").toString()));
-                Random random = new Random();
-                instrumentValues.put("quantity",random.nextInt(50) + 20.0);
-                this.instrumentList.put(instruments[counter],instrumentValues);
-                counter++;
+                try{
+                    JSONObject jsonObject = new JSONObject(content.toString());
+                    JSONObject jsonObject1 = new JSONObject(jsonObject.get("Global Quote").toString());
+                    HashMap<String,Double> instrumentValues = new HashMap<String, Double>();
+                    instrumentValues.put("price",Double.parseDouble(jsonObject1.get("05. price").toString()));
+                    Random random = new Random();
+                    instrumentValues.put("quantity",random.nextInt(50) + 20.0);
+                    this.instrumentList.put(instruments[counter],instrumentValues);
+                    counter++;
+                } catch (Exception e) {
+                    System.out.println("You have reached the maximum amount of api calls, try again in a minute");
+                    System.exit(0);
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();

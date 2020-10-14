@@ -189,7 +189,7 @@ public class Router {
 
             tempMessage = new String(brokerData.readBuffer.array());
             message = tempMessage;
-            System.out.println("messa: "+YELLOW+message);
+            System.out.println(YELLOW+message);
 
             tempMessage = tempMessage.replace("|", "\u0001");
             String pipe = "" + (char)1;
